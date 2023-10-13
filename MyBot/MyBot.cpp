@@ -8,7 +8,7 @@
  * scopes 'bot' and 'applications.commands', e.g.
  * https://discord.com/oauth2/authorize?client_id=940762342495518720&scope=bot+applications.commands&permissions=139586816064
  */
-const std::string    BOT_TOKEN    = "MTE2MTk4Njc2MDgyMjIyNjk0NA.G8twmI.FJx4nM4ceeh2hlEFCzrYlQbYnGG8dfJTymsTsA";
+const std::string    BOT_TOKEN    = "MTE2MTk4Njc2MDgyMjIyNjk0NA.GqVOS0.c71-9It1TBMW7hm1t_yVUsVBZrVz2gFTI1aCro";
 
 int main()
 {
@@ -44,6 +44,28 @@ int main()
 
             dpp::message msg(event.command.channel_id, embed);
             event.reply(msg);
+		}		if (event.command.get_command_name() == "help") {
+            dpp::embed embed = dpp::embed()
+                .set_color(dpp::colors::grass_green)
+                .set_title("CodiBot | Help Menu")
+                .add_field(
+                    "Test Bot",
+                    "/ping",
+                    true
+                )
+                .add_field(
+                    "Get dev information",
+                    "/dev",
+                    true
+                )
+                .set_footer(
+                    dpp::embed_footer()
+                    .set_text("Follow to stay up to date!")
+                    .set_icon("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+                );
+
+            dpp::message msg(event.command.channel_id, embed);
+            event.reply(msg);
 		}
 	});
 
@@ -51,9 +73,10 @@ int main()
 	bot.on_ready([&bot](const dpp::ready_t& event) {
 		/* Wrap command registration in run_once to make sure it doesnt run on every full reconnection */
 		if (dpp::run_once<struct register_bot_commands>()) {
-			bot.global_command_create(dpp::slashcommand("ping", "Ping pong!", bot.me.id));
+			bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("timbo", "Thats a secret!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("dev", "Send an information about the dev!", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("help", "Get help about the bot!", bot.me.id));
 		}
 
 		/* Set the bot presence as online and "Playing..."! */
