@@ -47,19 +47,13 @@ int main()
 		}
 	});
 
-	/* Handle the webhook */
-	dpp::webhook wh("https://discord.com/api/webhooks/1162291316194017280/BHLXXqE4jNuGKwToZHwwy3tWNaTNAVYles4k40b6PzmW1s1OmHnCuoapz94VxYO2i693");
-
-	/* Send a message with this webhook */
-	bot.execute_webhook_sync(wh, dpp::message("Have a great time here :smile:"));
-
 	/* Register slash command here in on_ready */
 	bot.on_ready([&bot](const dpp::ready_t& event) {
 		/* Wrap command registration in run_once to make sure it doesnt run on every full reconnection */
 		if (dpp::run_once<struct register_bot_commands>()) {
 			bot.global_command_create(dpp::slashcommand("ping", "Ping pong!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("timbo", "Thats a secret!", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("dev", "Send a test embed!", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("dev", "Send an information about the dev!", bot.me.id));
 		}
 	});
 
