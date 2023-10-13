@@ -8,7 +8,7 @@
  * scopes 'bot' and 'applications.commands', e.g.
  * https://discord.com/oauth2/authorize?client_id=940762342495518720&scope=bot+applications.commands&permissions=139586816064
  */
-const std::string    BOT_TOKEN    = "MTE2MTk4Njc2MDgyMjIyNjk0NA.G4OEi1.nJa23muz24s7Ox6hyQaoQYimQJksokxbsrzkwk";
+const std::string    BOT_TOKEN    = "MTE2MTk4Njc2MDgyMjIyNjk0NA.G8twmI.FJx4nM4ceeh2hlEFCzrYlQbYnGG8dfJTymsTsA";
 
 int main()
 {
