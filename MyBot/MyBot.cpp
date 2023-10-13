@@ -55,6 +55,9 @@ int main()
             bot.global_command_create(dpp::slashcommand("timbo", "Thats a secret!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("dev", "Send an information about the dev!", bot.me.id));
 		}
+
+		/* Set the bot presence as online and "Playing..."! */
+		bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_game, "C++ and still not knowing what im doing!"));
 	});
 
 	/* Start the bot */
