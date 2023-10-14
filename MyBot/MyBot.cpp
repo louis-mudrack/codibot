@@ -1,5 +1,6 @@
 #include "MyBot.h"
 #include <dpp/dpp.h>
+#include <cstdlib>
 
 /* Be sure to place your token in the line below.
  * Follow steps here to get a token:
@@ -8,10 +9,11 @@
  * scopes 'bot' and 'applications.commands', e.g.
  * https://discord.com/oauth2/authorize?client_id=940762342495518720&scope=bot+applications.commands&permissions=139586816064
  */
-const std::string    BOT_TOKEN    = "MTE2MTk4Njc2MDgyMjIyNjk0NA.GqVOS0.c71-9It1TBMW7hm1t_yVUsVBZrVz2gFTI1aCro";
 
 int main()
 {
+    const char* BOT_TOKEN = std::getenv("BOT_TOKEN");
+    
 	/* Create bot cluster */
 	dpp::cluster bot(BOT_TOKEN);
 
