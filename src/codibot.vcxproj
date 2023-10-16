@@ -24,6 +24,7 @@
     <ProjectGuid>{3bcaa106-d9d9-43ab-af92-01c943f4fec2}</ProjectGuid>
     <RootNamespace>MyBot</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>codibot</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -179,7 +180,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MyBot.cpp" />
+    <ClCompile Include="codibot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\include\dpp-10.0\dpp\auditlog.h" />
@@ -223,7 +224,7 @@
     <ClInclude Include="dependencies\include\dpp-10.0\dpp\webhook.h" />
     <ClInclude Include="dependencies\include\dpp-10.0\dpp\win32_safe_warnings.h" />
     <ClInclude Include="dependencies\include\dpp-10.0\dpp\wsclient.h" />
-    <ClInclude Include="MyBot.h" />
+    <ClInclude Include="codibot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

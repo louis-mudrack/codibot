@@ -1,4 +1,4 @@
-#include "MyBot.h"
+#include "codibot.h"
 #include <dpp/dpp.h>
 #include <cstdlib>
 
