@@ -2,13 +2,7 @@
 #include <dpp/dpp.h>
 #include <cstdlib>
 
-/* Be sure to place your token in the line below.
- * Follow steps here to get a token:
- * https://dpp.dev/creating-a-bot-application.html
- * When you invite the bot, be sure to invite it with the 
- * scopes 'bot' and 'applications.commands', e.g.
- * https://discord.com/oauth2/authorize?client_id=940762342495518720&scope=bot+applications.commands&permissions=139586816064
- */
+std::string jokeData;
 
 int main()
 {
@@ -22,6 +16,14 @@ int main()
 
 	/* Handle slash command */
 	bot.on_slashcommand([&bot](const dpp::slashcommand_t& event) {
+        if (event.command.get_command_name() == "joke") {
+            if (!jokeData.empty()) {
+                event.reply(jokeData);
+            }
+            else {
+                event.reply("Kein Witz verfügbar.");
+            }
+        }
 		if (event.command.get_command_name() == "ping") {
 			event.reply("Pong!");
 		}
@@ -71,21 +73,26 @@ int main()
 		}
 	});
 
-	/* Register slash command here in on_ready */
 	bot.on_ready([&bot](const dpp::ready_t& event) {
-		/* Wrap command registration in run_once to make sure it doesnt run on every full reconnection */
+
+        bot.request(
+            "https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get, [&](const dpp::http_request_completion_t& cc) {
+                jokeData = cc.body;
+            },
+            "text/plain"
+        );
+
 		if (dpp::run_once<struct register_bot_commands>()) {
 			bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
+            bot.global_command_create(dpp::slashcommand("joke", "Tells you a joke about programming!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("timbo", "Thats a secret!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("dev", "Send an information about the dev!", bot.me.id));
             bot.global_command_create(dpp::slashcommand("help", "Get help about the bot!", bot.me.id));
 		}
 
-		/* Set the bot presence as online and "Playing..."! */
 		bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_game, "C++ and still not knowing what im doing!"));
 	});
 
-	/* Start the bot */
 	bot.start(dpp::st_wait);
 
 	return 0;
