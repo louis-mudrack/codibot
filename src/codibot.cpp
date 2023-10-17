@@ -1,8 +1,10 @@
 #include "codibot.h"
 #include <dpp/dpp.h>
 #include <cstdlib>
+#include <atomic>
 
 std::string jokeData;
+std::atomic<bool> jokeRequestCompleted(false);
 
 int main()
 {
@@ -17,20 +19,29 @@ int main()
 	/* Handle slash command */
 	bot.on_slashcommand([&bot](const dpp::slashcommand_t& event) {
         if (event.command.get_command_name() == "joke") {
-            if (!jokeData.empty()) {
-                event.reply(jokeData);
+            bot.request(
+                "https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get, [&](const dpp::http_request_completion_t& cc) {
+                    jokeData = cc.body;
+                    jokeRequestCompleted.store(true); // Set the flag to true to indicate completion
+                },
+                "text/plain"
+            );
+
+            // Wait for the request to complete
+            while (!jokeRequestCompleted.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            else {
-                event.reply("Kein Witz verfügbar.");
-            }
+
+            // Now, send the response
+            event.reply(jokeData);
         }
-		if (event.command.get_command_name() == "ping") {
+		else if (event.command.get_command_name() == "ping") {
 			event.reply("Pong!");
 		}
-        if (event.command.get_command_name() == "timbo") {
+        else if (event.command.get_command_name() == "timbo") {
 			event.reply("WOW! Du hast den geheimen Command gefunden! We stan Tim. Tim is our god.");
 		}
-		if (event.command.get_command_name() == "dev") {
+        else if (event.command.get_command_name() == "dev") {
 			dpp::embed embed = dpp::embed()
                 .set_color(dpp::colors::black)
                 .set_title("ABOUT MY DEV")
@@ -48,7 +59,8 @@ int main()
 
             dpp::message msg(event.command.channel_id, embed);
             event.reply(msg);
-		}		if (event.command.get_command_name() == "help") {
+		}
+        else if (event.command.get_command_name() == "help") {
             dpp::embed embed = dpp::embed()
                 .set_color(dpp::colors::grass_green)
                 .set_title("CodiBot | Help Menu")
@@ -74,13 +86,6 @@ int main()
 	});
 
 	bot.on_ready([&bot](const dpp::ready_t& event) {
-
-        bot.request(
-            "https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get, [&](const dpp::http_request_completion_t& cc) {
-                jokeData = cc.body;
-            },
-            "text/plain"
-        );
 
 		if (dpp::run_once<struct register_bot_commands>()) {
 			bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
