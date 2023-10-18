@@ -26,10 +26,6 @@ void pingCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
     event.reply("Pong!");
 }
 
-void timboCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
-    event.reply("WOW! Du hast den geheimen Command gefunden! We stan Tim. Tim is our god. *cock my suck");
-}
-
 void devCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
     dpp::embed embed = dpp::embed()
         .set_color(dpp::colors::black)
@@ -75,9 +71,6 @@ void handleSlashCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
     else if (commandName == "ping") {
         pingCommand(bot, event);
     }
-    else if (commandName == "timbo") {
-        timboCommand(bot, event);
-    }
     else if (commandName == "dev") {
         devCommand(bot, event);
     }
@@ -93,7 +86,6 @@ void handleSlashCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
 void registerCommands(dpp::cluster& bot) {
     bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
     bot.global_command_create(dpp::slashcommand("joke", "Tells you a joke about programming!", bot.me.id));
-    bot.global_command_create(dpp::slashcommand("timbo", "That's a secret!", bot.me.id));
     bot.global_command_create(dpp::slashcommand("dev", "Send information about the dev!", bot.me.id));
     bot.global_command_create(dpp::slashcommand("help", "Get help about the bot!", bot.me.id));
 }
