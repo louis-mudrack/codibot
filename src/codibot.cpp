@@ -6,14 +6,6 @@
 std::string jokeData;
 std::atomic<bool> jokeRequestCompleted(false);
 
-size_t myHash(const std::string& str) {
-    size_t hash = 0;
-    for (char c : str) {
-        hash = hash * 31 + static_cast<size_t>(c);
-    }
-    return hash;
-}
-
 void jokeCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
     bot.request("https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get,
         [&](const dpp::http_request_completion_t& cc) {
