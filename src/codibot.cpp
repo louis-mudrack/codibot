@@ -107,7 +107,9 @@ void registerCommands(dpp::cluster& bot) {
 }
 
 int main() {
-    dpp::cluster bot("MTE2MTk4Njc2MDgyMjIyNjk0NA.GbOuLO.AadIHTPiJ_ejii0wz73fDxDdq8Mc2ZOquTNp_Q");
+    const char* BOT_TOKEN = std::getenv("BOT_TOKEN");
+
+    dpp::cluster bot(BOT_TOKEN);
 
     bot.on_log(dpp::utility::cout_logger());
 
