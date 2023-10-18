@@ -6,99 +6,124 @@
 std::string jokeData;
 std::atomic<bool> jokeRequestCompleted(false);
 
-int main()
-{
-    const char* BOT_TOKEN = std::getenv("BOT_TOKEN");
-    
-	/* Create bot cluster */
-	dpp::cluster bot(BOT_TOKEN);
+size_t myHash(const std::string& str) {
+    size_t hash = 0;
+    for (char c : str) {
+        hash = hash * 31 + static_cast<size_t>(c);
+    }
+    return hash;
+}
 
-	/* Output simple log messages to stdout */
-	bot.on_log(dpp::utility::cout_logger());
+void jokeCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    bot.request("https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get,
+        [&](const dpp::http_request_completion_t& cc) {
+            jokeData = cc.body;
+            jokeRequestCompleted.store(true);
+        },
+        "text/plain"
+    );
 
-	/* Handle slash command */
-	bot.on_slashcommand([&bot](const dpp::slashcommand_t& event) {
-        if (event.command.get_command_name() == "joke") {
-            bot.request(
-                "https://v2.jokeapi.dev/joke/Programming?lang=de&format=txt", dpp::m_get, [&](const dpp::http_request_completion_t& cc) {
-                    jokeData = cc.body;
-                    jokeRequestCompleted.store(true); // Set the flag to true to indicate completion
-                },
-                "text/plain"
-            );
+    while (!jokeRequestCompleted.load()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
-            // Wait for the request to complete
-            while (!jokeRequestCompleted.load()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
+    event.reply(jokeData);
+}
 
-            // Now, send the response
-            event.reply(jokeData);
+void pingCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    event.reply("Pong!");
+}
+
+void timboCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    event.reply("WOW! Du hast den geheimen Command gefunden! We stan Tim. Tim is our god. *cock my suck");
+}
+
+void devCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    dpp::embed embed = dpp::embed()
+        .set_color(dpp::colors::black)
+        .set_title("ABOUT MY DEV")
+        .set_url("https://github.com/louis-mudrack")
+        .set_author("Louis Mudrack", "https://github.com/louis-mudrack", "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+        .set_description("A developer from Germany.")
+        .set_thumbnail("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+        .set_image("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+        .set_footer(
+            dpp::embed_footer()
+            .set_text("Follow to stay up to date!")
+            .set_icon("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+        )
+        .set_timestamp(time(0));
+
+    dpp::message msg(event.command.channel_id, embed);
+    event.reply(msg);
+}
+
+void helpCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    dpp::embed embed = dpp::embed()
+        .set_color(dpp::colors::grass_green)
+        .set_title("CodiBot | Help Menu")
+        .add_field("Test Bot", "/ping", true)
+        .add_field("Get dev information", "/dev", true)
+        .set_footer(
+            dpp::embed_footer()
+            .set_text("Follow to stay up to date!")
+            .set_icon("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+        );
+
+    dpp::message msg(event.command.channel_id, embed);
+    event.reply(msg);
+}
+
+void handleSlashCommand(dpp::cluster& bot, const dpp::slashcommand_t& event) {
+    const std::string commandName = event.command.get_command_name();
+
+    if (commandName == "joke") {
+        jokeCommand(bot, event);
+    }
+    else if (commandName == "ping") {
+        pingCommand(bot, event);
+    }
+    else if (commandName == "timbo") {
+        timboCommand(bot, event);
+    }
+    else if (commandName == "dev") {
+        devCommand(bot, event);
+    }
+    else if (commandName == "help") {
+        helpCommand(bot, event);
+    }
+    else {
+        // Handle unknown command
+        event.reply("Unknown command.");
+    }
+}
+
+void registerCommands(dpp::cluster& bot) {
+    bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
+    bot.global_command_create(dpp::slashcommand("joke", "Tells you a joke about programming!", bot.me.id));
+    bot.global_command_create(dpp::slashcommand("timbo", "That's a secret!", bot.me.id));
+    bot.global_command_create(dpp::slashcommand("dev", "Send information about the dev!", bot.me.id));
+    bot.global_command_create(dpp::slashcommand("help", "Get help about the bot!", bot.me.id));
+}
+
+int main() {
+    dpp::cluster bot("MTE2MTk4Njc2MDgyMjIyNjk0NA.GbOuLO.AadIHTPiJ_ejii0wz73fDxDdq8Mc2ZOquTNp_Q");
+
+    bot.on_log(dpp::utility::cout_logger());
+
+    bot.on_slashcommand([&bot](const dpp::slashcommand_t& event) {
+        handleSlashCommand(bot, event);
+    });
+
+    bot.on_ready([&bot](const dpp::ready_t& event) {
+        if (dpp::run_once<struct register_bot_commands>()) {
+            registerCommands(bot);
         }
-		else if (event.command.get_command_name() == "ping") {
-			event.reply("Pong!");
-		}
-        else if (event.command.get_command_name() == "timbo") {
-			event.reply("WOW! Du hast den geheimen Command gefunden! We stan Tim. Tim is our god.");
-		}
-        else if (event.command.get_command_name() == "dev") {
-			dpp::embed embed = dpp::embed()
-                .set_color(dpp::colors::black)
-                .set_title("ABOUT MY DEV")
-                .set_url("https://github.com/louis-mudrack")
-                .set_author("Louis Mudrack", "https://github.com/louis-mudrack", "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
-                .set_description("A developer from germany.")
-                .set_thumbnail("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
-                .set_image("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
-                .set_footer(
-                    dpp::embed_footer()
-                    .set_text("Follow to stay up to date!")
-                    .set_icon("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
-                )
-                .set_timestamp(time(0));
 
-            dpp::message msg(event.command.channel_id, embed);
-            event.reply(msg);
-		}
-        else if (event.command.get_command_name() == "help") {
-            dpp::embed embed = dpp::embed()
-                .set_color(dpp::colors::grass_green)
-                .set_title("CodiBot | Help Menu")
-                .add_field(
-                    "Test Bot",
-                    "/ping",
-                    true
-                )
-                .add_field(
-                    "Get dev information",
-                    "/dev",
-                    true
-                )
-                .set_footer(
-                    dpp::embed_footer()
-                    .set_text("Follow to stay up to date!")
-                    .set_icon("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
-                );
+        bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_game, "C++ and still not knowing what I'm doing!"));
+    });
 
-            dpp::message msg(event.command.channel_id, embed);
-            event.reply(msg);
-		}
-	});
+    bot.start(dpp::st_wait);
 
-	bot.on_ready([&bot](const dpp::ready_t& event) {
-
-		if (dpp::run_once<struct register_bot_commands>()) {
-			bot.global_command_create(dpp::slashcommand("ping", "Test if the bot is online!", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("joke", "Tells you a joke about programming!", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("timbo", "Thats a secret!", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("dev", "Send an information about the dev!", bot.me.id));
-            bot.global_command_create(dpp::slashcommand("help", "Get help about the bot!", bot.me.id));
-		}
-
-		bot.set_presence(dpp::presence(dpp::ps_online, dpp::at_game, "C++ and still not knowing what im doing!"));
-	});
-
-	bot.start(dpp::st_wait);
-
-	return 0;
+    return 0;
 }
